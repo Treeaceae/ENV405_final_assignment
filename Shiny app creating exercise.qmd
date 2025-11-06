@@ -24,7 +24,9 @@ ui <- fluidPage(
       numericInput("lng", "经度 (Longitude):", value = 116.40, step = 0.001),
       textInput("label", "标签 (可选):", value = "标记点"),
       actionButton("add", "添加点"),
-      actionButton("clear", "清除所有点")
+      actionButton("clear", "清除所有点"),
+      hr(),                                 ### ✅ 修正（原先缺逗号）
+      uiOutput("point_list_ui")             ### 新增：显示所有标注点的选择框
     ),
     
     mainPanel(
@@ -46,25 +48,49 @@ server <- function(input, output, session) {
   
   # 添加点
   observeEvent(input$add, {
-    new_point <- data.frame(lat = input$lat, lng = input$lng, label = input$label)
+    new_point <- data.frame(lat = input$lat, lng = input$lng, label = input$label, stringsAsFactors = FALSE)
     points(rbind(points(), new_point))
     
     leafletProxy("map") %>%
       addMarkers(
         lng = input$lng,
         lat = input$lat,
-        popup = input$label
+        popup = input$label,
+        layerId = input$label  # 新增：为每个点设置 layerId（用于后续定位）
       )
   })
   
   # 清除点
   observeEvent(input$clear, {
     points(data.frame(lat = numeric(), lng = numeric(), label = character()))
-    leafletProxy("map") %>% clearMarkers()
+    leafletProxy("map") %>% clearMarkers() %>% clearPopups()    ### 修改：同时清除 popup
+  })
+  
+  # 新增：动态生成标注点列表
+  output$point_list_ui <- renderUI({
+    pts <- points()
+    if (nrow(pts) == 0) {
+      helpText("暂无标注点")
+    } else {
+      selectInput("selected_point", "快速定位标注点：", 
+                  choices = pts$label, selected = NULL)
+    }
+  })
+  
+  # 修改：当用户在下拉框中选择点时，地图自动跳转并显示 popup（用 clearPopups + addPopups）
+  observeEvent(input$selected_point, {
+    req(input$selected_point)
+    pts <- points()
+    sel <- pts[pts$label == input$selected_point, ]
+    if (nrow(sel) == 1) {
+      leafletProxy("map") %>%
+        setView(lng = sel$lng, lat = sel$lat, zoom = 10) %>%
+        clearPopups() %>%                                    ### 新增/修改：先清除现有弹窗
+        addPopups(lng = sel$lng, lat = sel$lat, popup = sel$label)  ### 新增：以 addPopups 显示弹窗
+    }
   })
 }
 
 shinyApp(ui, server)
-
 ```
 
