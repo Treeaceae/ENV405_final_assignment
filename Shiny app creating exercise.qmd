@@ -11,6 +11,7 @@ Order: I want to create a visually appealing map format and develop a shiny app 
 ```{r}
 install.packages(c("shiny", "leaflet"))
 ```
+
 ```{r}
 library(shiny)
 library(leaflet)
@@ -94,3 +95,8 @@ server <- function(input, output, session) {
 shinyApp(ui, server)
 ```
 
+It is really fantastic!
+
+I wonder if I can ask ai for coding for final assignment. Why should I learn code? I can just ask ai to do all the work。。。
+
+I would never be as excellent as ai in coding.
