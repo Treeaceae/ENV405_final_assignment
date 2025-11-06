@@ -1,0 +1,70 @@
+---
+title: "1_finding_output_theme"
+format: html
+editor: visual
+---
+
+## Shiny app created by chatgpt
+
+Order: I want to create a visually appealing map format and develop a shiny app where you can mark points on the map by inputting coordinates. How can I do this?
+
+```{r}
+install.packages(c("shiny", "leaflet"))
+```
+```{r}
+library(shiny)
+library(leaflet)
+
+ui <- fluidPage(
+  titlePanel("📍 输入坐标在地图上打点"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      numericInput("lat", "纬度 (Latitude):", value = 39.90, step = 0.001),
+      numericInput("lng", "经度 (Longitude):", value = 116.40, step = 0.001),
+      textInput("label", "标签 (可选):", value = "标记点"),
+      actionButton("add", "添加点"),
+      actionButton("clear", "清除所有点")
+    ),
+    
+    mainPanel(
+      leafletOutput("map", height = "600px")
+    )
+  )
+)
+
+server <- function(input, output, session) {
+  # 初始化地图
+  output$map <- renderLeaflet({
+    leaflet() %>%
+      addProviderTiles(providers$CartoDB.Positron) %>%  # 地图样式
+      setView(lng = 116.40, lat = 39.90, zoom = 4)
+  })
+  
+  # 存储点数据
+  points <- reactiveVal(data.frame(lat = numeric(), lng = numeric(), label = character()))
+  
+  # 添加点
+  observeEvent(input$add, {
+    new_point <- data.frame(lat = input$lat, lng = input$lng, label = input$label)
+    points(rbind(points(), new_point))
+    
+    leafletProxy("map") %>%
+      addMarkers(
+        lng = input$lng,
+        lat = input$lat,
+        popup = input$label
+      )
+  })
+  
+  # 清除点
+  observeEvent(input$clear, {
+    points(data.frame(lat = numeric(), lng = numeric(), label = character()))
+    leafletProxy("map") %>% clearMarkers()
+  })
+}
+
+shinyApp(ui, server)
+
+```
+
