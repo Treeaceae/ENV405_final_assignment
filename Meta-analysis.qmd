@@ -26,6 +26,10 @@ The choice of data collection method in playback experiments is pivotal, influen
 # Maybe I want to concentrated on acoustic experiment on birds
 ```
 
+......However, while individual studies often acknowledge these methodological constraints, there has been no systematic synthesis quantifying how data collection methods impact the overall efficiency of playback-based research in birds.
+
+This meta-analysis aims to address this gap by evaluating how different data collection approaches influence the outcomes, reliability, and interpretability of avian acoustic playback experiments. By comparing methodological features across published studies, we assess which practices enhance experimental efficiency and which introduce predictable sources of variation. Our findings provide a foundation for improving experimental design, increasing reproducibility, and guiding best practices for future research in avian bioacoustics.
+
 # Method[@odea2021][@mathot2024]
 
 Literature search and inclusion/exclusion criteria
