@@ -97,6 +97,6 @@ shinyApp(ui, server)
 
 It is really fantastic!
 
-I wonder if I can ask ai for coding for final assignment. Why should I learn code? I can just ask ai to do all the work。。。
+I wonder if I can ask ai for coding for final assignment. Why should I learn code? I can just ask ai to do all the work。。。.
 
 I would never be as excellent as ai in coding.
