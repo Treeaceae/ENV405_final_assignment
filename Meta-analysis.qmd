@@ -23,7 +23,7 @@ The choice of data collection method in playback experiments is pivotal, influen
 -   Technological advances and the rise of online/automated platforms introduce new opportunities and challenges for data collection.
 
 ```{r}
-# Maybe I want to concentrated on acoustic experiment on birds
+# Maybe I want to concentrated on acoustic experiment on birds。。
 ```
 
 ......However, while individual studies often acknowledge these methodological constraints, there has been no systematic synthesis quantifying how data collection methods impact the overall efficiency of playback-based research in birds.
