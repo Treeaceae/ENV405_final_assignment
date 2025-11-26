@@ -1,6 +1,11 @@
 library(shiny)
 
 # --- 1. User Interface (UI) ---
+# Add MathJax for LaTeX rendering
+header = tags$head(
+  tags$script(src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML")
+),
+
 ui <- navbarPage(
   title = "Universal Meta-Analysis Predictor",
   
@@ -49,11 +54,11 @@ ui <- navbarPage(
                width = 8,
                h3("Prediction Results"),
                wellPanel(
-                 h4(HTML("Predicted Mean Effect Size (Hedge's $g$)")),
+                 h4(withMathJax("Predicted Mean Effect Size \\( (Hedge's \\ g) \\)")),
                  h3(textOutput("predicted_g_box"))
                ),
                wellPanel(
-                 h4(HTML("Predicted Residual Heterogeneity $\\tau^2$ (Precision)")),
+                 h4(withMathJax("Predicted Residual Heterogeneity \\( (\\tau^2) \\) (Precision)")),
                  h3(textOutput("predicted_tau2_box"))
                ),
                wellPanel(
@@ -80,12 +85,12 @@ ui <- navbarPage(
              column(8,
                     wellPanel(
                       style = "background-color: #dff0d8;", # Green background
-                      h4(HTML("Minimum Required Sample Size (N) per Group")),
+                      h4(withMathJax("Minimum Required Sample Size \\( (N) \\) per Group")),
                       h3(textOutput("required_n_box"))
                     ),
                     wellPanel(
                       style = "background-color: #fcf8e3;", # Yellow background
-                      h4("Sample Size Recommendation & $\\tau^2$ Adjustment"),
+                      h4(withMathJax("Sample Size Recommendation & \\( \\tau^2 \\) Adjustment")),
                       htmlOutput("n_recommendation")
                     )
              )
