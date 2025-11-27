@@ -6,7 +6,7 @@ editor: visual
 bibliography: references.bib
 ---
 
-# Introduction
+# Introduction 
 
 ## The Predicament of Playback Experiment
 
