@@ -1,137 +1,299 @@
 ---
-title: "Meta-analysis: The Impact of Data Collection Methods on the Efficiency of Playback Experiments"
+title: "Universal Meta-Analysis App: Technical Documentation"
 author: "2575823"
-format: html
+format: 
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    theme: cosmo
 editor: visual
 bibliography: references.bib
 ---
 
-# Introduction 
+# Introduction
 
-## The Predicament of Playback Experiment
+meta-analysis is a key statistical methods to combine, summarize and interpret all available evidence pertaining to a clearly defined research field or research question[@lipsey2001].
 
-Playback experiments are foundational in ecological and behavioral research, enabling scientists to probe animal communication, cognition, and social interactions by presenting controlled auditory or visual stimuli and observing responses. These experiments have been instrumental in advancing our understanding of species-specific behaviors, predator-prey dynamics, and the evolution of communication systems. The methodological rigor and reproducibility of playback experiments are critical, as subtle variations in experimental design can profoundly influence the validity and generalizability of findings. As such, playback experiments are widely regarded as a gold standard for hypothesis testing in field and laboratory settings, underpinning a substantial body of ecological and behavioral literature.
+However, conducting a Meta-Analysis, especially performing complex Meta-Regression, heterogeneity tests, and publication bias analysis, usually requires profound statistical knowledge and programming skills in languages such as R. This technical barrier hinders many domain experts from quickly extracting and synthesizing conclusions from existing lit
 
-A central challenge in playback research is the pronounced heterogeneity introduced by methodological choices—particularly the mode of data collection. In-person observation, remote video (live or prerecorded), and automated sensor-based approaches each offer distinct advantages and limitations. For instance, remote methods can facilitate larger and more diverse samples, but may compromise the richness of non-verbal cues and introduce new sources of bias. Automated sensors can enhance data accuracy and reduce human error, yet may lack contextual nuance. These differences are not trivial: they can lead to substantial variability in data volume, participant engagement, error rates, and ultimately, experimental outcomes. The resulting heterogeneity complicates the synthesis of findings across studies, as variations in experimental settings, response types, and data collection modalities can yield divergent or even conflicting results
+To lower the technical threshold of Meta-Analysis, I designed and implemented a universal interactive Meta-Analysis tool based on R Shiny App (hereinafter referred to as "App"). The main goal of this App is to provide a no-code data upload and column mapping interface. It supports two main types of data, which is continuous and binary data. One-click generation of professional analysis results include effect size summary, forest plot, and funnel plot. This article will provide a detailed description of the design principles and technical implementation of the App, and demonstrate its p6owerful functions in practical applications through a simulated dataset of a playback experiment[@mathot2024].
 
-## Solution: A universal interactive analysis tool
-
-Given the proliferation of playback studies employing diverse methodologies, researchers face an urgent need to synthesize these heterogeneous and sometimes contradictory results. Meta-analysis has emerged as the gold standard for evidence integration, offering a systematic framework to quantify effect sizes, assess heterogeneity, and draw robust conclusions from disparate datasets. However, the execution of meta-analyses in ecology is often hampered by steep technical requirements: advanced statistical knowledge, proficiency in programming, and familiarity with complex data structures are typically prerequisites. These barriers can impede ecologists—especially those without specialized quantitative training—from rapidly and reliably synthesizing evidence from the literature.
-
-To address this gap, we present a general-purpose, interactive Shiny app designed to democratize meta-analysis for ecological researchers. By enabling users to upload curated datasets and perform comprehensive analyses—including fixed and random effects models, forest plots, and funnel plots—without the need for advanced programming skills, this tool lowers the technical threshold for evidence synthesis. In this study, we illustrate the app’s functionality and value through the lens of playback experiments, specifically examining how data collection methods influence experimental outcomes. This approach not only showcases the practical utility of interactive meta-analytic tools but also highlights their potential to advance methodological rigor and transparency in ecological research.
-
-# Method[@odea2021][@mathot2024]
-
-## Meta-analysis Process
-
-### Literature search and screening
-
-1.  Follow the PRISMA guidelines: Clearly report the process of literature screening (searching, deduplication, screening, and inclusion).
-
-2.  Database: Select core databases such as Web of Science (WOS) and Scopus.
-
-3.  Search Terms: Design three sets of search terms to ensure comprehensiveness and relevance.
-
-    For example, ["playback" OR "acoustic stimulation" OR "song broadcast" OR "vocal mimicry"]{.underline}
-
-### Inclusion/Exclusion Criteria
-
-1.  It must include an acoustic playback as the experimental treatment.
-
-2.  A control group (such as silence, white noise, or non-threatening sounds) must be reported.
-
-3.  Mean, standard deviations (SD), or standard errors, as well as sample sizes (N), must be provided.
-
-4.  It must be birds.
-
-5.  It must be clearly described in the method section how the response data was collected.
-
-### Data coding and Extraction
-
-1.  Basic information: Extract author, year, journal, and species.
-
-2.  Effect size data: Extract the Mean, SD, and N values for the experimental group and the control group.
-
-3.  Key Moderator: "Data Collection Method".
-
-    Example of encoding:
-
-    Observer_Presence: (A) In-person observation, (B) Remote observation (e.g., via video camera), (C) Fully automated observation (e.g., using acoustic sensor).
-
-    Response_Type: (A) Behavioural Response, (B) Physiological Response, (C) Life History Response (This classification is borrowed from Mathot).
-
-4.  Other Putative Moderators: Extract other factors that might influence the outcome.
-
-    Setting: (A) Laboratory, (B) Field.
-
-    Control_Type: (A) Silence/Blank , (B) Disturbance Control (e.g., speaker presence), (C) Non-target Species Sound.
-
-    Duration: Experiment duration.
-
-### Effect Size Calculation
-
-1.  Effect size selection: Use the standardised mean difference, which is also known as Hedge's g.
-
-2.  Calculation: Use the escalc function in the metafor package to calculate Hedge's g and its sampling variance.
-
-3.  Directional coding: Ensure that all effect sizes have the same direction. For example, uniformly code as "Response to Playback is enhanced" as a positive value.
-
-### Meta-analysis
-
-1.  Model selection: Utilize the multilevel Meta-Analysis model , using the rma.mv function from the metafor package in R.
-
-2.  Handling Non-Independence.
-
-3.  Calculate the total heterogeneity ($I^2$) to assess the extent of differences in effect sizes among the studies.
-
-4.  The "data collection method" was incorporated as a [fixed effect]{.underline} into the model to test whether there were significant differences in the mean effect size (mean SMD) among different methods.
-
-5.  Heteroscedasticity Analysis
-
-### Publication Bias
-
-1.  Funnel Plot: Visual inspection for symmetry.
-
-2.  Egger's Regression: Quantitative Test for the Asymmetry of Funnel Plot.
-
-3.  Time lag effect: To test whether the effect size varies with the publication year.
+# Method
 
 ## Shiny App
 
+The application is implemented using the R Shiny framework, with core statistical computations performed using the `meta` R package. The tool is designed to provide a generalizable and accessible workflow for standardized meta-analytic procedures.
+
+The application's structure relies on loading several core R libraries for functionality:
+
+``` r
+# LOAD REQUIRED LIBRARIES
+library(shiny)
+library(shinythemes)
+library(meta)     # For all meta-analysis functions
+library(readxl)   # For reading .xlsx files
+library(DT)       # For renderDataTable
+```
+
+### User Interface (UI) Implementation
+
+The interface consists of two main components: a sidebar panel for data input and analysis configuration, and a main panel for the display of numerical and graphical results(Fig1).
+
+![Fig1. Main content of the UI interface.](Fig1_ui.png){fig-align="center" width="313"}
+
+**Data Upload and Format Compatibility**
+
+The application provides a file upload interface and conditional options for different formats. The `fileInput` function is configured to accept `.csv` and `.xlsx` files:
+
+``` r
+fileInput("file1", "Choose .csv or .xlsx File",
+            multiple = FALSE,
+            accept = c("text/csv",
+                       "text/comma-separated-values,text/plain",
+                       ".csv",
+                       ".xls",
+                       ".xlsx"))
+```
+
+A `conditionalPanel` is used to only display options for header and delimiter (sep) when a CSV file is detected:
+
+``` r
+conditionalPanel(
+  condition = "output.fileType == 'csv'",
+  checkboxInput("header", "Data has Header?", TRUE),
+  radioButtons("sep", "Separator",
+               choices = c(Comma = ",", Semicolon = ";", Tab = "\t"),
+               selected = ",")
+)
+```
+
+The application is designed for flexibility and does not require strict column header naming conventions. It relies on a column-mapping interface instead.
+
+However, the uploaded data table must meet the following structural requirements:
+
+1.  Table Structure: The data should be a flat table. Each row must represent a single, independent study.
+
+2.  Header Row: The table must include a header row (i.e., column names), as the application reads these names to populate the mapping interface for user selection.
+
+3.  Data Content: The raw data must be provided according to the selected data type (binary or continuous).
+
+    -   For Binary Data: The table must include a column for study identification (e.g., author, year) and columns with raw numeric data for: Events (Group 1 / Exposed), Total N (Group 1 / Exposed), Events (Group 2 / Control), and Total N (Group 2 / Control).
+
+    ```{r}
+    # Sample data
+    BD <- read.csv('binary_data.csv')
+    head(BD)
+    ```
+
+    -   For Continuous Data: The table must include a column for study identification and columns with raw numeric data for: N (Group 1 / Exposed), Mean (Group 1 / Exposed), SD (Group 1 / Exposed), and N (Group 2 / Control), Mean (Group 2 / Control), and SD (Group 2 / Control).
+
+    ``` r
+    # Sample data
+    CD <- read.csv('continuous_data.csv')
+    head(CD)
+    ```
+
+4.  Data Format: All columns intended for analysis (e.g., Events, Mean, N, SD) must contain numeric data.
+
+5.  Missing Values: The columns used in the analysis should not contain missing values (NA), as this will result in an analysis error and a user prompt.
+
+**Dynamic Column Mapping and Measure Selection**\
+A central feature is the column-mapping interface, which enables users to align their dataset’s variable names with the internal parameters required by the App. The placeholders `uiOutput`(`"dataMappingControls"`) and `uiOutput`(`"measureControls"`) are used in the UI to dynamically render input selectors based on the chosen data type ("binary" or "continuous").
+
+**Model Specification and Execution**\
+Users define the core analysis parameters using standard Shiny controls. This includes selecting the Model Type (`radioButtons`) and the Random Effects Method (`selectInput`), which offers options like REML and DerSimonian-Laird.
+
+``` r
+radioButtons("model", "Model Type",
+             choices = c("Random effects" = "random",
+                         "Fixed effect" = "fixed"),
+             selected = "random")
+```
+
+**Output and Visualization Tabs**\
+The main results are presented in a `tabsetPanel`, providing distinct views for the Data Preview, Summary, Forest Plot, and Funnel Plot.
+
+``` r
+tabsetPanel(
+  type = "tabs",
+  tabPanel("Data Preview", DT::dataTableOutput("contents")),
+  tabPanel("Summary Results", verbatimTextOutput("summary")),
+  tabPanel("Forest Plot", plotOutput("forestPlot", height = "800px")),
+  tabPanel("Funnel Plot", plotOutput("funnelPlot", height = "600px"))
+)
+```
+
+### Server Logic Implementation
+
+The server component, defined in server.R, is responsible for orchestrating the core analytical workflow.
+
+**Data Loading and Preview**\
+The `loaded_data` reactive function handles file processing. It uses the file extension to determine whether to use `read.csv` (for CSV files, using user-specified header/separator) or `read_excel` (for Excel files):
+
+``` r
+# Get file extension
+ext <- tools::file_ext(inFile$name)
+    
+# Read file based on extension
+df <- switch(ext,
+    "csv" = read.csv(inFile$datapath,
+                    header = input$header,
+                    sep = input$sep),
+    "xls" = read_excel(inFile$datapath),
+    "xlsx" = read_excel(inFile$datapath),
+    stop("Invalid file type. Please upload a .csv or .xlsx file.")
+)
+```
+
+The `output$contents` renders this data into an interactive table using the `DT::datatable` function for easy preview.
+
+**Dynamic UI Generation**\
+The `output$dataMappingControls` function dynamically creates `selectInput` elements using the column names (`col_names <- colnames(loaded_data())`). This ensures the mapping interface matches the user's data structure. For binary data, it requests inputs for events and total N (e.g., `e1_col, n1_col`), while for continuous data, it requests inputs for N, Mean, and SD (e.g., `n1_col, m1_col, sd1_col`).
+
+The `output$measureControls` dynamically adjusts the effect measure choices based on data type:
+
+``` r
+if (input$dataType == "binary") {
+  selectInput("measure", "Effect Measure",
+              choices = c("Odds Ratio" = "OR", "Risk Ratio" = "RR", "Risk Difference" = "RD"),
+              selected = "OR")
+} else if (input$dataType == "continuous") {
+  selectInput("measure", "Effect Measure",
+              choices = c("Mean Difference" = "MD", "Standardized Mean Difference (Hedges' g)" = "SMD"),
+              selected = "MD")
+}
+```
+
+**Core Statistical Analysis**\
+The `meta_results` is an `eventReactive` function that performs the analysis only when the `Run Meta-Analysis` button (`input$runAnalysis`) is pressed. The analytical path is determined dynamically based on the user-specified data type.
+
+For continuous outcome data, the `metacont()` function from the meta package is used:
+
+``` r
+} else if (input$dataType == "continuous") {
+  # ... variable assignments based on mapped columns
+  
+  m <- metacont(n.e = n1,
+                mean.e = m1,
+                sd.e = sd1,
+                n.c = n2,
+                mean.c = m2,
+                sd.c = sd2,
+                studlab = studlab,
+                sm = input$measure,
+                comb.fixed = (input$model == "fixed"),
+                comb.random = (input$model == "random"),
+                method.tau = input$method,
+                hakn = (input$method == "HK"))
+}
+```
+
+For binary outcome data, the `metabin()` function is used, following a similar structure for parameter passing.
+
+**Robust Error Handling**\
+Robust error handling is implemented via `tryCatch` constructs. This design ensures that scenarios involving incompatible column mappings or invalid data types are managed gracefully, returning a descriptive error message instead of causing a session termination:
+
+``` r
+tryCatch({
+  # ... analysis code ...
+  return(m)
+  
+}, error = function(e) {
+  showModal(modalDialog(
+    title = "Analysis Error",
+    paste("An error occurred. Please check your data and column mappings.",
+          # ... error details ...
+          "\n\nError details: ", e$message),
+    easyClose = TRUE,
+    footer = NULL
+  ))
+  return(NULL)
+})
+```
+
+**Output and Visualization.**\
+The server generates all three visualization outputs based on the successful execution of the `meta_results` object (`m`). Summary: `output$summary` uses `summary(m)` to display key heterogeneity metrics and pooled effect size. Forest Plot: `output$forestPlot` uses `forest(m)` to generate the plot. Funnel Plot: `output$funnelPlot` uses `funnel(m)` to enable a preliminary evaluation of potential publication bias.
+
+## Data
+
+For the purpose of demonstrating the App's functionality and verifying the computational logic, two structured simulated datasets were generated in R, covering the two main data types supported by the App (Binary and Continuous). Each dataset comprises 10 hypothetical studies, simulating a comparative playback experiment. The subsequent analysis will be based on these two sets of data.
+
+``` r
+# Generate binary data
+binary_data <- data.frame(
+  Study = c("Smith_2020", "Johnson_2019", "Williams_2021", "Brown_2018", "Davis_2022",
+            "Miller_2017", "Wilson_2019", "Moore_2020", "Taylor_2021", "Anderson_2018"),
+  Events_Experimental = c(23, 45, 67, 34, 56, 28, 39, 61, 44, 52),
+  Total_Experimental = c(150, 200, 300, 180, 250, 160, 190, 280, 210, 230),
+  Events_Control = c(15, 32, 58, 29, 41, 19, 33, 52, 35, 44),
+  Total_Control = c(145, 195, 295, 175, 245, 155, 185, 275, 205, 225)
+)
+
+# Generate continuous data
+continuous_data <- data.frame(
+  Study = c("Smith_2020", "Johnson_2019", "Williams_2021", "Brown_2018", "Davis_2022",
+            "Miller_2017", "Wilson_2019", "Moore_2020", "Taylor_2021", "Anderson_2018"),
+  N_Experimental = c(45, 68, 52, 37, 61, 42, 55, 48, 59, 44),
+  Mean_Experimental = c(25.3, 18.7, 32.1, 12.4, 28.6, 15.9, 22.7, 19.3, 26.8, 14.2),
+  SD_Experimental = c(4.2, 3.8, 5.3, 2.9, 4.8, 3.2, 4.1, 3.5, 4.7, 3.1),
+  N_Control = c(43, 65, 50, 35, 59, 40, 53, 46, 57, 42),
+  Mean_Control = c(23.1, 16.9, 29.8, 11.2, 26.3, 14.5, 20.8, 17.6, 24.9, 12.8),
+  SD_Control = c(4.5, 3.6, 5.1, 2.7, 4.6, 3.0, 3.9, 3.4, 4.5, 2.9)
+)
+
+write.csv(binary_data, "binary_data.csv", row.names = FALSE)
+write.csv(continuous_data, "continuous_data.csv", row.names = FALSE)
+```
+
 # Results and Discussions
+
+This section demonstrates the App's robust capability in handling both binary structures through two case studies related to **student success in ENV405: Advanced Statistics In Environmental Sciences**. All analyses were performed using the default Random Effects Model with the Restricted Maximum Likelihood (REML) method for $\tau^2$ estimation.
 
 ## Results
 
-The ... effect sizes finally included in the report (from ... studies, involving ... species)
+### Binary Outcome Data — Impact of Practice Quizzes on Final Exam Success
 
-The overall average effect size (SMD) and its 95% CI of the Playback experiment.
+We utilized the binary sample data to simulate a meta-analysis examining the effect of using **optional online practice quizzes** on a student's likelihood of **passing the short-answer section of the ENV405 final exam(Fig2)**. The experimental group consisted of students who accessed the quizzes, and the control group were those who did not. The effect measure chosen was the Odds Ratio (OR).
 
-The overall $I^2$ (likely very high)
+![Fig2. Visual Summary of Meta-Analysis Results for the Impact of Practice Quizzes on ENV405 Exam Pass Rate. a) Summary Result. Reports the significant pooled Odds Ratio (\$OR=1.2858, p=0.0014\$) under the random effects model, indicating that students using the practice quiz had an approximately \$29\\%\$ increase in the odds of passing the exam. Heterogeneity analysis shows the study results are highly homogenous (\$I\^2 = 0.0\\%\$). b) Forest Plot. Displays the individual effect sizes (Odds Ratios, OR) and their \$95\\%\$ Confidence Intervals (CI) for the ten included studies. The diamond at the bottom, representing the pooled random effects, confirms the significant positive effect of the intervention as its \$95\\%\$ CI \$\[1.1017; 1.5007\]\$ does not touch the line of no effect (OR=1). c) Funnel Plot. Used to assess publication bias, the study effect sizes (log OR) are symmetrically distributed around the pooled effect, confirming the \$I\^2 = 0.0\\%\$ result and indicating no apparent signs of bias.](Fig.png)
 
-Main findings (mean value): Whether the data collection method significantly affects the average effect size?
+**Analysis and Interpretation:**
 
-Main findings (variance): Whether the heteroscedastic model is significantly better than the homoscedastic model? (Reported LRT results 53). If so, show the size of heterogeneity (variance) for each group of "data collection methods".
+-   **Effect Size:** The meta-analysis, encompassing $k=10$ studies and 4250 total observations, revealed a **highly statistically significant positive effect** of using the optional practice quizzes. The pooled Odds Ratio (OR) was $1.29$ (1.2858), with a $95\%$ Confidence Interval (CI) of $[1.1017, 1.5007]$. This indicates that students who used the quizzes had approximately $29\%$ higher odds of passing the short-answer section of the final exam compared to those who did not. The overall effect test ($Z=3.19$) yielded a highly significant $p$-value ($p=0.0014$).
 
-Report other significant covariates (such as: Lab vs. Field).
+-   **Heterogeneity:** The analysis showed **no evidence of statistical heterogeneity**. The Cochran's Q test statistic ($Q=1.72$ on 9 degrees of freedom) had a corresponding $p$-value of $0.9952$. This high $p$-value confirms that the observed variation among the 10 study effects is entirely consistent with random chance. Furthermore, the $I^2$ statistic was $0.0\%$, suggesting that **none of the variability** in the outcomes is due to true differences in the effect size across the studies. The random effects model confirmed a $\tau^2$ of $0$.
 
-Report the funnel plot and Egger's regression results.
+-   **Methodology:** The analysis utilized the Inverse Variance method, and the calculation of the heterogeneity variance ($\tau^2$) employed the Restricted Maximum-Likelihood (REML) estimator, with $I^2$ calculated based on the $Q$ statistic.
 
 ## Discussion
 
-Explain the main findings.
+This ENV405 course-related case studies effectively highlight the App's immediate utility in synthesizing educational research:
 
-Limitations
+1.  **Direct Application:** The App allows researchers to directly investigate research questions relevant to student success (e.g., "Do practice quizzes work?") by mapping intuitive column headers (like `Events_Experimental` or `Mean_Control`) to the underlying statistical models.
 
-Future
+2.  **No-Code Synthesis and visualization:** The App transforms raw student outcome data into a professional meta-analytic report, confirming that the practice quizzes have a statistically significant and highly consistent positive impact (OR=1.32 and SMD=0.460, respectively). The core contribution of this App is the elimination of the statistical programming barrier, allowing complex meta-analyse process can be immediately and directly applied to real-life situations and experiments.
+
+To enhance the App's utility and align it with the capabilities of advanced meta-analysis software, the following improvements are suggested:
+
+1.  **Broader Data Type Support:**
+
+    -   **Current Limitation:** Support is limited to Binary (Events/N) and Continuous (Mean/SD/N) data.
+
+    -   **Improvement:** Extend the App to handle other common meta-analysis data types, including single-arm proportion data (`meta::metaprop`), correlation coefficients (`meta::metacor`), and data from diagnostic test accuracy studies (e.g., sensitivity and specificity).
+
+2.  **Interactive Plots:**
+
+    -   **Current Limitation:** The current use of base R graphics (`forest`, `funnel`) results in static plots.
+
+    -   **Improvement:** Re-render plots using libraries like `plotly` or `ggplot2`, allowing users to hover over individual study points to view data, zoom into specific areas, or dynamically exclude studies from the analysis.
 
 # Conclusion
 
-(Reiterating the core contribution of the research)
+The universal interactive Meta-Analysis App successfully lowers the technical threshold for conducting systematic reviews. Through its no-code interface, it empowers users to seamlessly upload raw data, select appropriate effect measures, and instantly generate comprehensive, professional-grade meta-analysis results, including summary statistics and essential diagnostic plots (Forest and Funnel plots). This tool enables domain experts to efficiently extract and synthesize conclusions from existing literature, focusing on interpretation rather than programming challenges.
 
-This study is the first to quantify the impact of the data collection method itself on the mean and the variance of the results of the Playback experiment.
+# AI Disclore
 
-The study shows that the choice of methodology is an important and overlooked source of heterogeneity among ecological studies.
-
-# AI Disclosure
+The author acknowledges the use of a large language model (LLM), such as Google's Gemini, for auxiliary purposes in preparing this technical documentation. The assistance was strictly limited to learning process meta-analysis, language refinement, grammar correction, stylistic polishing, translation of selected sections, and structuring the explanatory text (e.g., portions of the Introduction, Method and Discussion).
 
 # Reference
