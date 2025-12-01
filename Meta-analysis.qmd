@@ -40,7 +40,11 @@ library(DT)       # For renderDataTable
 
 The interface consists of two main components: a sidebar panel for data input and analysis configuration, and a main panel for the display of numerical and graphical results(Fig1).
 
-![Fig1. Main content of the UI interface.](Fig1_ui.png){fig-align="center" width="313"}
+![](Fig1_ui.png){fig-align="center" width="313"}
+
+::: {style="text-align: center;"}
+Fig1. Main content of the UI interface.
+:::
 
 **Data Upload and Format Compatibility**
 
@@ -252,17 +256,19 @@ This section demonstrates the App's robust capability in handling both binary st
 
 ### Binary Outcome Data — Impact of Practice Quizzes on Final Exam Success
 
-We utilized the binary sample data to simulate a meta-analysis examining the effect of using **optional online practice quizzes** on a student's likelihood of **passing the short-answer section of the ENV405 final exam(Fig2)**. The experimental group consisted of students who accessed the quizzes, and the control group were those who did not. The effect measure chosen was the Odds Ratio (OR).
+We utilized the binary sample data to simulate a meta-analysis examining the effect of using **optional online practice quizzes** on a student's likelihood of **passing the short-answer section of the ENV405 final exam(Fig2)**. The experimental group consisted of students who accessed the quizzes, and the control group were those who did not. The effect measure chosen was the Odds Ratio (OR). The analysis utilized the Inverse Variance method, and the calculation of the heterogeneity variance ($\tau^2$) employed the Restricted Maximum-Likelihood (REML) estimator, with $I^2$ calculated based on the $Q$ statistic.
 
-![Fig2. Visual Summary of Meta-Analysis Results for the Impact of Practice Quizzes on ENV405 Exam Pass Rate. a) Summary Result. Reports the significant pooled Odds Ratio (\$OR=1.2858, p=0.0014\$) under the random effects model, indicating that students using the practice quiz had an approximately \$29\\%\$ increase in the odds of passing the exam. Heterogeneity analysis shows the study results are highly homogenous (\$I\^2 = 0.0\\%\$). b) Forest Plot. Displays the individual effect sizes (Odds Ratios, OR) and their \$95\\%\$ Confidence Intervals (CI) for the ten included studies. The diamond at the bottom, representing the pooled random effects, confirms the significant positive effect of the intervention as its \$95\\%\$ CI \$\[1.1017; 1.5007\]\$ does not touch the line of no effect (OR=1). c) Funnel Plot. Used to assess publication bias, the study effect sizes (log OR) are symmetrically distributed around the pooled effect, confirming the \$I\^2 = 0.0\\%\$ result and indicating no apparent signs of bias.](Fig.png)
+![](Fig.png)
+
+::: {style="text-align: center;"}
+Fig2. Visual summary of the meta-analysis on the effect of practice quizzes on the ENV405 exam pass rate. **a) Summary Result:** The random-effects model yields a significant pooled Odds Ratio (OR = 1.2858, p = 0.0014), with heterogeneity estimated at I² = 0.0%. **b) Forest Plot:** Shows the individual effect sizes and their 95% confidence intervals (CI) for the ten included studies. The diamond at the bottom indicates a significant positive overall effect, with a 95% CI of \[1.1017, 1.5007\]. **c) Funnel Plot:** Used to assess publication bias. The study effect sizes (log OR) are symmetrically distributed around the pooled estimate, consistent with the I² = 0.0% result.
+:::
 
 **Analysis and Interpretation:**
 
--   **Effect Size:** The meta-analysis, encompassing $k=10$ studies and 4250 total observations, revealed a **highly statistically significant positive effect** of using the optional practice quizzes. The pooled Odds Ratio (OR) was $1.29$ (1.2858), with a $95\%$ Confidence Interval (CI) of $[1.1017, 1.5007]$. This indicates that students who used the quizzes had approximately $29\%$ higher odds of passing the short-answer section of the final exam compared to those who did not. The overall effect test ($Z=3.19$) yielded a highly significant $p$-value ($p=0.0014$).
+-   **Effect Size:** The meta-analysis, encompassing $k=10$ studies and 4250 total observations, revealed a **highly statistically significant positive effect** of using the optional practice quizzes. The pooled Odds Ratio (OR) was about $1.29$ , with a $95\%$ Confidence Interval (CI) of $[1.1017, 1.5007]$. This indicates that students who used the quizzes had approximately $29\%$ higher odds of passing the short-answer section of the final exam compared to those who did not. The overall effect test ($Z=3.19$) yielded a highly significant $p$-value ($p=0.0014$).
 
 -   **Heterogeneity:** The analysis showed **no evidence of statistical heterogeneity**. The Cochran's Q test statistic ($Q=1.72$ on 9 degrees of freedom) had a corresponding $p$-value of $0.9952$. This high $p$-value confirms that the observed variation among the 10 study effects is entirely consistent with random chance. Furthermore, the $I^2$ statistic was $0.0\%$, suggesting that **none of the variability** in the outcomes is due to true differences in the effect size across the studies. The random effects model confirmed a $\tau^2$ of $0$.
-
--   **Methodology:** The analysis utilized the Inverse Variance method, and the calculation of the heterogeneity variance ($\tau^2$) employed the Restricted Maximum-Likelihood (REML) estimator, with $I^2$ calculated based on the $Q$ statistic.
 
 ## Discussion
 
@@ -292,6 +298,6 @@ The universal interactive Meta-Analysis App successfully lowers the technical th
 
 # AI Disclore
 
-The author acknowledges the use of a large language model (LLM), such as Google's Gemini, for auxiliary purposes in preparing this technical documentation. The assistance was strictly limited to learning process meta-analysis, language refinement, grammar correction, stylistic polishing, translation of selected sections, and structuring the explanatory text (e.g., portions of the Introduction, Method and Discussion).
+The author acknowledges the use of a large language model, such as Google's Gemini, for auxiliary purposes in preparing this technical documentation. The assistance was strictly limited to learning process meta-analysis, language refinement, grammar correction, stylistic polishing, translation of selected sections, and structuring the explanatory text (e.g., portions of the Introduction, Method and Discussion).
 
 # Reference
