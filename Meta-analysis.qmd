@@ -68,9 +68,7 @@ conditionalPanel(
 )
 ```
 
-The application is designed for flexibility and does not require strict column header naming conventions. It relies on a column-mapping interface instead.
-
-However, the uploaded data table must meet the following structural requirements:
+The application is designed for flexibility and does not require strict column header naming conventions. It relies on a column-mapping interface instead. However, the uploaded data table must meet the following structural requirements:
 
 1.  Table Structure: The data should be a flat table. Each row must represent a single, independent study.
 
