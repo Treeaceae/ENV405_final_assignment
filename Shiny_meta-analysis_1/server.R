@@ -1,5 +1,3 @@
-# Basic server, regardless of the research topic
-
 # LOAD REQUIRED LIBRARIES
 library(shiny)
 library(meta)     # For all meta-analysis functions

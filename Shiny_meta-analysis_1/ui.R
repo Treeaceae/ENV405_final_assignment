@@ -1,5 +1,3 @@
-# Basic UI interface, regardless of the research topic
-
 # LOAD REQUIRED LIBRARIES
 library(shiny)
 library(shinythemes)
