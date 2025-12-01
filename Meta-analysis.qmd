@@ -80,7 +80,7 @@ However, the uploaded data table must meet the following structural requirements
 
     -   For Binary Data: The table must include a column for study identification (e.g., author, year) and columns with raw numeric data for: Events (Group 1 / Exposed), Total N (Group 1 / Exposed), Events (Group 2 / Control), and Total N (Group 2 / Control).
 
-    ```r
+    ``` r
     # Sample data
     BD <- read.csv('binary_data.csv')
     head(BD)
@@ -248,7 +248,7 @@ write.csv(continuous_data, "continuous_data.csv", row.names = FALSE)
 
 # Results and Discussions
 
-This section demonstrates the App's robust capability in handling both binary structures through two case studies related to **student success in ENV405: Advanced Statistics In Environmental Sciences**. All analyses were performed using the default Random Effects Model with the Restricted Maximum Likelihood (REML) method for $\tau^2$ estimation.
+This section demonstrates the App's robust capability in handling both binary structures through case study related to **student success in ENV405: Advanced Statistics In Environmental Sciences**. All analyses were performed using the default Random Effects Model with the Restricted Maximum Likelihood (REML) method for $\tau^2$ estimation.
 
 ## Results
 
