@@ -35,5 +35,8 @@ These two figures are referenced in `Meta-analysis.qmd`.
 4)Data_generate.R\
 This file generates binary and continuous data for the purpose of demonstrating the App's functionality and verifying the computational logic.
 
-4)binary_data.csv and continuous_data.csv\
+5)binary_data.csv and continuous_data.csv\
 Sample datasets generated in `Data_generate.R`.
+
+6)references.bib
+It contains the details of references.
