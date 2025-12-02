@@ -40,7 +40,7 @@ library(DT)       # For renderDataTable
 
 The interface consists of two main components: a sidebar panel for data input and analysis configuration, and a main panel for the display of numerical and graphical results(Fig1).
 
-![](Fig1_ui.png){fig-align="center" width="313"}
+![](Fig1.png){fig-align="center" width="313"}
 
 ::: {style="text-align: center;"}
 Fig1. Main content of the UI interface.
@@ -258,7 +258,7 @@ This section demonstrates the App's robust capability in handling both binary st
 
 We utilized the binary sample data to simulate a meta-analysis examining the effect of using **optional online practice quizzes** on a student's likelihood of **passing the short-answer section of the ENV405 final exam(Fig2)**. The experimental group consisted of students who accessed the quizzes, and the control group were those who did not. The effect measure chosen was the Odds Ratio (OR). The analysis utilized the Inverse Variance method, and the calculation of the heterogeneity variance ($\tau^2$) employed the Restricted Maximum-Likelihood (REML) estimator, with $I^2$ calculated based on the $Q$ statistic.
 
-![](Fig.png)
+![](Fig2.png)
 
 ::: {style="text-align: center;"}
 Fig2. Visual summary of the meta-analysis on the effect of practice quizzes on the ENV405 exam pass rate. **a) Summary Result:** The random-effects model yields a significant pooled Odds Ratio (OR = 1.2858, p = 0.0014), with heterogeneity estimated at I² = 0.0%. **b) Forest Plot:** Shows the individual effect sizes and their 95% confidence intervals (CI) for the ten included studies. The diamond at the bottom indicates a significant positive overall effect, with a 95% CI of \[1.1017, 1.5007\]. **c) Funnel Plot:** Used to assess publication bias. The study effect sizes (log OR) are symmetrically distributed around the pooled estimate, consistent with the I² = 0.0% result.
