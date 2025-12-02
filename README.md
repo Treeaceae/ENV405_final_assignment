@@ -23,14 +23,17 @@ nickname       Great Square Root
 
 This repository contains the following documents:
 
-1)Shiny_meta-analysis_1 folder
-Contains the `ui.R` and `server.R` files, which form the core code of the Shiny app.
+1)Shiny_meta-analysis_1\
+folder Contains the `ui.R` and `server.R` files, which form the core code of the Shiny app.
 
-2)Meta-analysis.qmd
+2)Meta-analysis.qmd\
 This Quarto document outlines the design concepts, methods, and includes an example results analysis.
 
-3)Fig1.png and Fig2.png
+3)Fig1.png and Fig2.png\
 These two figures are referenced in `Meta-analysis.qmd`.
 
-4)binary_data.csv and continuous_data.csv
-Sample datasets generated in `Meta-analysis.qmd`.
+4)Data_generate.R\
+This file generates binary and continuous data for the purpose of demonstrating the App's functionality and verifying the computational logic.
+
+4)binary_data.csv and continuous_data.csv\
+Sample datasets generated in `Data_generate.R`.

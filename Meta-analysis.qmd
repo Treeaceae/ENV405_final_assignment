@@ -13,11 +13,11 @@ bibliography: references.bib
 
 # Introduction
 
-meta-analysis is a key statistical methods to combine, summarize and interpret all available evidence pertaining to a clearly defined research field or research question[@lipsey2001].
+meta-analysis is a key statistical methods to combine, summarize and interpret all available evidence pertaining to a clearly defined research field or research question[@lipsey2001][@doingmeta2024].
 
-However, conducting a Meta-Analysis, especially performing complex Meta-Regression, heterogeneity tests, and publication bias analysis, usually requires profound statistical knowledge and programming skills in languages such as R. This technical barrier hinders many domain experts from quickly extracting and synthesizing conclusions from existing lit
+However, conducting a Meta-Analysis, especially performing complex Meta-Regression, heterogeneity tests, and publication bias analysis, usually requires profound statistical knowledge and programming skills in languages such as R. This technical barrier hinders many domain experts from quickly extracting and synthesizing conclusions from existing literature.
 
-To lower the technical threshold of Meta-Analysis, I designed and implemented a universal interactive Meta-Analysis tool based on R Shiny App (hereinafter referred to as "App"). The main goal of this App is to provide a no-code data upload and column mapping interface. It supports two main types of data, which is continuous and binary data. One-click generation of professional analysis results include effect size summary, forest plot, and funnel plot. This article will provide a detailed description of the design principles and technical implementation of the App, and demonstrate its p6owerful functions in practical applications through a simulated dataset of a playback experiment[@mathot2024].
+To lower the technical threshold of Meta-Analysis, I designed and implemented a universal interactive Meta-Analysis tool based on R Shiny App (hereinafter referred to as "App"). The main goal of this App is to provide a no-code data upload and column mapping interface. It supports two main types of data, which is continuous and binary data. One-click generation of professional analysis results include effect size summary, forest plot, and funnel plot. This article will provide a detailed description of the design principles and technical implementation of the App, and demonstrate its powerful functions in practical applications through a simulated dataset related to student success in ENV405.
 
 # Method
 
@@ -219,23 +219,23 @@ The server generates all three visualization outputs based on the successful exe
 
 ## Data
 
-For the purpose of demonstrating the App's functionality and verifying the computational logic, two structured simulated datasets were generated in R, covering the two main data types supported by the App (Binary and Continuous). Each dataset comprises 10 hypothetical studies, simulating a comparative playback experiment. The subsequent analysis will be based on these two sets of data.
+### Data Generation
+
+For the purpose of demonstrating the App's functionality and verifying the computational logic, two structured simulated datasets were generated in R, covering the two main data types supported by the App (Binary and Continuous). Each dataset comprises 10 hypothetical studies, simulating a comparative experiment.
 
 ``` r
 # Generate binary data
 binary_data <- data.frame(
-  Study = c("Smith_2020", "Johnson_2019", "Williams_2021", "Brown_2018", "Davis_2022",
-            "Miller_2017", "Wilson_2019", "Moore_2020", "Taylor_2021", "Anderson_2018"),
-  Events_Experimental = c(23, 45, 67, 34, 56, 28, 39, 61, 44, 52),
-  Total_Experimental = c(150, 200, 300, 180, 250, 160, 190, 280, 210, 230),
-  Events_Control = c(15, 32, 58, 29, 41, 19, 33, 52, 35, 44),
-  Total_Control = c(145, 195, 295, 175, 245, 155, 185, 275, 205, 225)
+  Study = c("ENV405_2016", "ENV405_2017", "ENV405_2018", "ENV405_2019", "ENV405_2020", "ENV405_2021", "ENV405_2022", "ENV405_2023", "ENV405_2024", "ENV405_2025"),
+  Passed_QuizGroup = c(23, 45, 67, 34, 56, 28, 39, 61, 44, 52),
+  Total_QuizGroup = c(150, 200, 300, 180, 250, 160, 190, 280, 210, 230),
+  Passed_NoQuizGroup = c(15, 32, 58, 29, 41, 19, 33, 52, 35, 44),
+  Total_NoQuizGroup = c(145, 195, 295, 175, 245, 155, 185, 275, 205, 225)
 )
 
 # Generate continuous data
 continuous_data <- data.frame(
-  Study = c("Smith_2020", "Johnson_2019", "Williams_2021", "Brown_2018", "Davis_2022",
-            "Miller_2017", "Wilson_2019", "Moore_2020", "Taylor_2021", "Anderson_2018"),
+  Study = c("Smith_2020", "Johnson_2019", "Williams_2021", "Brown_2018", "Davis_2022", "Miller_2017", "Wilson_2019", "Moore_2020", "Taylor_2021", "Anderson_2018"),
   N_Experimental = c(45, 68, 52, 37, 61, 42, 55, 48, 59, 44),
   Mean_Experimental = c(25.3, 18.7, 32.1, 12.4, 28.6, 15.9, 22.7, 19.3, 26.8, 14.2),
   SD_Experimental = c(4.2, 3.8, 5.3, 2.9, 4.8, 3.2, 4.1, 3.5, 4.7, 3.1),
@@ -248,15 +248,25 @@ write.csv(binary_data, "binary_data.csv", row.names = FALSE)
 write.csv(continuous_data, "continuous_data.csv", row.names = FALSE)
 ```
 
-# Results and Discussions
+### Data Analysis
 
-This section demonstrates the App's robust capability in handling both binary structures through case study related to **student success in ENV405: Advanced Statistics In Environmental Sciences**. All analyses were performed using the default Random Effects Model with the Restricted Maximum Likelihood (REML) method for $\tau^2$ estimation.
+The subsequent analysis will be based on the binary data, which is related to **student success in ENV405: Advanced Statistics In Environmental Sciences**.
+
+```{r}
+library(knitr) 
+ba <- read.csv("binary_data.csv", header = TRUE)
+knitr::kable(ba, align = 'c')
+```
+
+The dataset comprises 10 independent study cohorts, labeled from **ENV405_2016 to ENV405_2025**, representing data from different academic terms. The data structure includes five key variables: **Study** (the cohort identifier); **Passed_QuizGroup** and **Total_QuizGroup** which record the **number of students who passed** and the **total number of students** in the intervention group (those who accessed the quizzes), respectively; and **Passed_NoQuizGroup** and **Total_NoQuizGroup** which correspond to the pass count and total count for the control group (those who did not access the quizzes). This structure allows for the direct calculation of the Odds Ratio (OR) for each individual study.
+
+The effect measure chosen was the OR. All analyses were performed using the default Random Effects Model with the Restricted Maximum Likelihood (REML) method for heterogeneity variance ($\tau^2$) estimation, with proportion of heterogeneity in the total variation ($I^2$) calculated based on the $Q$ statistic.
+
+# Results and Discussions
 
 ## Results
 
-### Binary Outcome Data — Impact of Practice Quizzes on Final Exam Success
-
-We utilized the binary sample data to simulate a meta-analysis examining the effect of using **optional online practice quizzes** on a student's likelihood of **passing the short-answer section of the ENV405 final exam(Fig2)**. The experimental group consisted of students who accessed the quizzes, and the control group were those who did not. The effect measure chosen was the Odds Ratio (OR). The analysis utilized the Inverse Variance method, and the calculation of the heterogeneity variance ($\tau^2$) employed the Restricted Maximum-Likelihood (REML) estimator, with $I^2$ calculated based on the $Q$ statistic.
+We utilized the binary sample data to simulate a meta-analysis examining the effect of using **optional online practice quizzes** on a student's likelihood of **passing the short-answer section of the ENV405 final exam(Fig2)**. The experimental group consisted of students who accessed the quizzes, and the control group were those who did not.
 
 ![](Fig2.png)
 
@@ -266,9 +276,9 @@ Fig2. Visual summary of the meta-analysis on the effect of practice quizzes on t
 
 **Analysis and Interpretation:**
 
--   **Effect Size:** The meta-analysis, encompassing $k=10$ studies and 4250 total observations, revealed a **highly statistically significant positive effect** of using the optional practice quizzes. The pooled Odds Ratio (OR) was about $1.29$ , with a $95\%$ Confidence Interval (CI) of $[1.1017, 1.5007]$. This indicates that students who used the quizzes had approximately $29\%$ higher odds of passing the short-answer section of the final exam compared to those who did not. The overall effect test ($Z=3.19$) yielded a highly significant $p$-value ($p=0.0014$).
+1.  **Effect Size:** The meta-analysis, encompassing $k=10$ studies and 4250 total observations, revealed a **highly statistically significant positive effect** of using the optional practice quizzes. The pooled OR was about $1.29$ , with a $95\%$ CI of $[1.1017, 1.5007]$. This indicates that students who used the quizzes had approximately $29\%$ higher odds of passing the short-answer section of the final exam compared to those who did not. The overall effect test ($Z=3.19$) yielded a highly significant $p$-value ($p=0.0014$).
 
--   **Heterogeneity:** The analysis showed **no evidence of statistical heterogeneity**. The Cochran's Q test statistic ($Q=1.72$ on 9 degrees of freedom) had a corresponding $p$-value of $0.9952$. This high $p$-value confirms that the observed variation among the 10 study effects is entirely consistent with random chance. Furthermore, the $I^2$ statistic was $0.0\%$, suggesting that **none of the variability** in the outcomes is due to true differences in the effect size across the studies. The random effects model confirmed a $\tau^2$ of $0$.
+2.  **Heterogeneity:** The analysis showed **no evidence of statistical heterogeneity**. The Cochran's Q test statistic ($Q=1.72$ on 9 degrees of freedom) had a corresponding $p$-value of $0.9952$. This high $p$-value confirms that the observed variation among the 10 study effects is entirely consistent with random chance. Furthermore, the $I^2$ statistic was $0.0\%$, suggesting that **none of the variability** in the outcomes is due to true differences in the effect size across the studies. The random effects model confirmed a $\tau^2$ of $0$.
 
 ## Discussion
 
