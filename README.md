@@ -38,5 +38,5 @@ This file generates binary and continuous data for the purpose of demonstrating 
 5)binary_data.csv and continuous_data.csv\
 Sample datasets generated in `Data_generate.R`.
 
-6)references.bib
+6)references.bib\
 It contains the details of references.
